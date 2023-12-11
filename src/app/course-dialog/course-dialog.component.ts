@@ -8,6 +8,7 @@ import {throwError} from 'rxjs';
 import { CourseService } from '../services/course.service';
 import { LoadingService } from '../loading/loading.service';
 import { MessagesService } from '../messages/messages.service';
+import { CoursesStore } from '../services/course.store';
 
 @Component({
     selector: 'course-dialog',
@@ -26,8 +27,7 @@ export class CourseDialogComponent implements AfterViewInit {
         private fb: FormBuilder,
         private dialogRef: MatDialogRef<CourseDialogComponent>,
         @Inject(MAT_DIALOG_DATA) course:Course,
-        private coursesService: CourseService,
-        private loadingService: LoadingService,
+        private courseStore: CoursesStore,
         private messagesService: MessagesService) {
 
         this.course = course;
@@ -47,27 +47,28 @@ export class CourseDialogComponent implements AfterViewInit {
     save() {
 
       const changes = this.form.value;
-      const saveCourse$ = this.coursesService.SaveCourse(this.course.id, changes)
-          .pipe(
-              catchError( err => {
-                const message = 'Could not Save course';
-                this.messagesService.ShowErrors(message);
-                console.log('An error occurred '+message,err);
-                return throwError(err)  
-              })               
-          )  
-      ;
-
-      this.loadingService.ShowLoaderUntilComplete(saveCourse$)
-        .subscribe(
-           val => { this.dialogRef.close(val);},
+      this.courseStore.saveCourse(this.course.id, changes)
+        //   .pipe(
+        //       catchError( err => {
+        //         const message = 'Could not Save course';
+        //         this.messagesService.ShowErrors(message);
+        //         console.log('An error occurred '+message,err);
+        //         return throwError(err)  
+        //       })               
+        //   )
+          .subscribe();
+          this.dialogRef.close(changes);
+          
+    //   this.loadingService.ShowLoaderUntilComplete(saveCourse$)
+    //     .subscribe(
+    //        val => { this.dialogRef.close(val);},
         //    catchError( err => {
         //     const message = 'Could not load courses';
         //     this.messagesService.ShowErrors(message);
         //     console.log('An error occurred '+message,err);
         //     return throwError(err)  
         //   })          
-        )
+        // )
 
     }
 
